@@ -24,59 +24,65 @@ namespace Core {
   struct Object;
 }
 
-enum TokenKind {
-  TOK_NAME,
-  TOK_STR,
-  TOK_PUNCTUATER,
-  TOK_END
-};
-
-struct Token {
-  TokenKind kind;
-  Token* back;
-  Token* next;
-  std::string str;
-  size_t pos;
-
-  Token(TokenKind kind = TOK_NAME)
-    : kind(kind),
-      back(nullptr),
-      next(nullptr),
-      pos(0)
-  {
-  }
-
-  Token(TokenKind kind, Token* back, size_t pos)
-    : Token(kind)
-  {
-    this->back = back;
-    this->pos = pos;
-
-    if( back ) {
-      back->next = this;
-    }
-  }
-};
-
 // BNF Reader
 namespace BNF_Reader {
 
-namespace BNFContext {
-
-
-
-} // namespace BNFContext
-
-class Reader {
-  Token* cur;
-  Token* ate;
+enum ItemKind {
+  BNF_DEFINE,
+  BNF_SEPARATE,
+  BNF_STR,
   
-  std::vector<
+};
+
+struct BNFItem {
+  ItemKind kind;
+  std::string name;
+
+  std::vector<BNFItem> list;
+
+  std::string to_string() const;
+};
+
+class Lexer {
+  std::string const& source;
+  size_t position;
+
+  bool check();
+  char peek();
 
 public:
-  explicit Reader(Token* token) :cur(token), ate(nullptr) { }
-
+  explicit Lexer(std::string const& source)
+    : source(source), position(0) { }
   
+  void lex(std::vector<std::string>& out);
+
+
+};
+
+class Reader {
+  using Iterator = typename std::vector<std::string>::iterator;
+  using ConstIterator = typename std::vector<std::string>::const_iterator;
+
+  //Token* cur;
+  //Token* ate;
+
+  ConstIterator cur, ate;
+  std::vector<std::string> const& source;
+  
+  std::vector<BNFItem*> ctxlist;
+
+  bool check();
+  bool eat(char const* str);
+
+public:
+  explicit Reader(std::vector<std::string> const& source)
+    : source(source), cur(source.begin()), ate({ }) { }
+
+  BNFItem factor();
+  BNFItem list();
+  BNFItem separator();
+  BNFItem define();
+  BNFItem top();
 };
 
 } // namespace BNF_Reader
@@ -99,6 +105,41 @@ struct Type {
   Type& operator = (TypeKind kind) {
     this->kind = kind;
     return *this;
+  }
+};
+
+
+enum TokenKind {
+  TOK_INT,
+  TOK_IDENT,
+  TOK_RESERVED,
+  TOK_END
+};
+
+struct Token {
+  TokenKind kind;
+  Token* back;
+  Token* next;
+  std::string str;
+  size_t pos;
+
+  Token(TokenKind kind = TOK_INT)
+    : kind(kind),
+      back(nullptr),
+      next(nullptr),
+      pos(0)
+  {
+  }
+
+  Token(TokenKind kind, Token* back, size_t pos)
+    : Token(kind)
+  {
+    this->back = back;
+    this->pos = pos;
+
+    if( back ) {
+      back->next = this;
+    }
   }
 };
 

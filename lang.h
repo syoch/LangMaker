@@ -31,12 +31,27 @@ std::ostream& operator << (std::ostream& ost, T const& x) {
   return ost << x.to_string();
 }
 
-template <class T>
+template <haveMethodToString T>
 std::string join(std::string const& s, std::vector<T> const& vec) {
   std::stringstream ss;
 
   for( size_t i = 0; i < vec.size(); i++ ) {
     ss << vec[i];
+
+    if( i < vec.size() - 1 ) {
+      ss << s;
+    }
+  }
+
+  return ss.str();
+}
+
+template <class T, class F>
+std::string join(std::string const& s, std::vector<T> const& vec, F f) {
+  std::stringstream ss;
+
+  for( size_t i = 0; i < vec.size(); i++ ) {
+    ss << f(vec[i]);
 
     if( i < vec.size() - 1 ) {
       ss << s;
@@ -72,7 +87,8 @@ struct BNFItem {
 
   std::vector<BNFItem> list;
 
-  std::string to_string() const;
+  static std::string to_string(BNFItem const& item);
+  static std::string to_data_string(BNFItem const& item);
 
 };
 

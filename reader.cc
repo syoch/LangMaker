@@ -44,10 +44,15 @@ BNFItem Reader::factor() {
     exit(1);
   }
 
-  if( *cur == "(" ) {
-    cur++;
+  if( eat("(") ) {
     auto&& item = this->top();
     expect(")");
+
+    if( eat("*") ) {
+      item.item.reset(new BNFItem(std::move(item)));
+      item.kind = BNF_REPEAT;
+    }
+
     return item;
   }
 
@@ -82,7 +87,7 @@ BNFItem Reader::list() {
   }
   catch( ... ) { }
 
-
+  return item.list.size() == 1 ? item.list[0] : item;
   return item;
 }
 
@@ -97,7 +102,7 @@ BNFItem Reader::separator() {
     }
   }
 
-  return item;
+  return item.list.size() == 1 ? item.list[0] : item;
 }
 
 BNFItem Reader::define() {

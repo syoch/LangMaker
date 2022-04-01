@@ -3,7 +3,7 @@
 int main(int argc, char** argv) {
   using namespace LangMaker;
 
-  std::vector<std::string> s { "a", "=", "b", "|", "c", "e" };
+  std::vector<std::string> s { "a", "=", "b", "|", "c", "f", "|", "(", "x", ")", "*" };
 
   BNF_Reader::Reader reader(s);
 

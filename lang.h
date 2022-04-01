@@ -73,6 +73,7 @@ namespace BNF_Reader {
 
 enum ItemKind {
   BNF_DEFINE,
+  BNF_REPEAT,
   BNF_SEPARATE,
   BNF_LIST,
   BNF_STR,

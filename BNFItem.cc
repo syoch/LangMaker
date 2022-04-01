@@ -26,13 +26,15 @@ namespace LangMaker::BNF_Reader {
       case BNF_DEFINE:
         return item.name + " = " + to_data_string(*item.item);
 
+      case BNF_REPEAT:
+        return "REPEAT(" + to_data_string(*item.item) + ")";
+
       case BNF_SEPARATE:
-        return join(" | ", item.list, to_data_string);
+        return "SEPARATE(" + join(" | ", item.list, to_data_string) + ")";
 
       case BNF_LIST: {
-
+        return "LIST(" + join(", ", item.list, to_data_string) + ")";
       }
-        return "BNF_LIST(" + join(" ", item.list, to_data_string) + ")";
 
       case BNF_STR:
       case BNF_VAR:

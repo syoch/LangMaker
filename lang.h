@@ -1,11 +1,15 @@
 #pragma once
 
+#include <concepts>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
+#include <memory>
 #include <tuple>
 
 #define  alert  fprintf(stderr,"\t#Alert %s:%d\n",__FILE__,__LINE__)
+#define  debug(...) __VA_ARGS__
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -16,6 +20,31 @@ typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
 typedef int64_t i64;
+
+template <class T>
+concept haveMethodToString = requires (T const& x) {
+  x.to_string();
+};
+
+template <haveMethodToString T>
+std::ostream& operator << (std::ostream& ost, T const& x) {
+  return ost << x.to_string();
+}
+
+template <class T>
+std::string join(std::string const& s, std::vector<T> const& vec) {
+  std::stringstream ss;
+
+  for( size_t i = 0; i < vec.size(); i++ ) {
+    ss << vec[i];
+
+    if( i < vec.size() - 1 ) {
+      ss << s;
+    }
+  }
+
+  return ss.str();
+}
 
 namespace LangMaker {
 
@@ -30,17 +59,21 @@ namespace BNF_Reader {
 enum ItemKind {
   BNF_DEFINE,
   BNF_SEPARATE,
+  BNF_LIST,
   BNF_STR,
-  
+  BNF_VAR
 };
 
 struct BNFItem {
   ItemKind kind;
+
   std::string name;
+  std::shared_ptr<BNFItem> item;
 
   std::vector<BNFItem> list;
 
   std::string to_string() const;
+
 };
 
 class Lexer {
@@ -72,11 +105,38 @@ class Reader {
   std::vector<BNFItem*> ctxlist;
 
   bool check();
-  bool eat(char const* str);
+  bool eat(char const*);
+  void expect(char const*);
+
+  enum class StringType {
+    Number,
+    Alphabets,
+    None
+  };
+
+  static StringType getStrT(std::string const& s) {
+    if( s.empty() ) {
+      return StringType::None;
+    }
+
+    if( isdigit(s[0]) ) {
+      return StringType::Number;
+    }
+    else if( isalpha(s[0]) ) {
+      return StringType::Alphabets;
+    }
+
+    return StringType::None;
+  }
 
 public:
   explicit Reader(std::vector<std::string> const& source)
-    : source(source), cur(source.begin()), ate({ }) { }
+    : source(source)
+  {
+    this->cur = this->source.begin();
+
+    alert;
+  }
 
   BNFItem factor();
   BNFItem list();

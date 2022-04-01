@@ -14,10 +14,8 @@ void Lexer::lex(std::vector<std::string>& out) {
   for( ; check(); this->position++ ) {
     auto ch = peek();
 
-    switch( ch ) {
-      case '"': {
-        
-      }
+    if( isdigit(ch) ) {
+      
     }
   }
 }

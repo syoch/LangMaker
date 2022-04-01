@@ -29,6 +29,9 @@ namespace LangMaker::BNF_Reader {
       case BNF_REPEAT:
         return "REPEAT(" + to_data_string(*item.item) + ")";
 
+      case BNF_OPTION:
+        return "OPTION(" + to_data_string(*item.item) + ")";
+
       case BNF_SEPARATE:
         return "SEPARATE(" + join(" | ", item.list, to_data_string) + ")";
 
@@ -37,9 +40,10 @@ namespace LangMaker::BNF_Reader {
       }
 
       case BNF_STR:
+        return '"' + item.name + '"';
+
       case BNF_VAR:
         return item.name;
-
     }
 
     return "";

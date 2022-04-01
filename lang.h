@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -73,6 +74,7 @@ namespace BNF_Reader {
 
 enum ItemKind {
   BNF_DEFINE,
+  BNF_OPTION,
   BNF_REPEAT,
   BNF_SEPARATE,
   BNF_LIST,
@@ -99,6 +101,7 @@ class Lexer {
 
   bool check();
   char peek();
+  void pass_space();
 
 public:
   explicit Lexer(std::string const& source)
@@ -128,6 +131,8 @@ class Reader {
   enum class StringType {
     Number,
     Alphabets,
+    String,
+    Other,
     None
   };
 
@@ -142,8 +147,11 @@ class Reader {
     else if( isalpha(s[0]) ) {
       return StringType::Alphabets;
     }
+    else if( s[0] == '"' ) {
+      return StringType::String;
+    }
 
-    return StringType::None;
+    return StringType::Other;
   }
 
 public:

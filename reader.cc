@@ -48,9 +48,16 @@ BNFItem Reader::factor() {
     auto&& item = this->top();
     expect(")");
 
+    // Repeat
     if( eat("*") ) {
       item.item.reset(new BNFItem(std::move(item)));
       item.kind = BNF_REPEAT;
+    }
+
+    // Optional
+    else if( eat("?") ) {
+      item.item.reset(new BNFItem(std::move(item)));
+      item.kind = BNF_OPTION;
     }
 
     return item;
@@ -61,9 +68,15 @@ BNFItem Reader::factor() {
 
   switch( st ) {
     case StringType::Alphabets: {
-
       item.kind = BNF_VAR;
       item.name = *cur;
+      cur++;
+      break;
+    }
+
+    case StringType::String: {
+      item.kind = BNF_STR;
+      item.name = cur->substr(1, cur->length() - 2);
       cur++;
       break;
     }
@@ -118,7 +131,7 @@ BNFItem Reader::define() {
     return this->separator();
   }
 
-  if( cur[1] == "=" ) {
+  if( (cur + 1) < source.end() && cur[1] == "=" ) {
     BNFItem item = { .kind = ItemKind::BNF_DEFINE };
 
     item.name = *cur;

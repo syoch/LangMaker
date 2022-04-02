@@ -1,4 +1,7 @@
-#include "lang.h"
+#include <iostream>
+#include "common.h"
+#include "BNF_Reader/Lexer.h"
+#include "Utils.h"
 
 static char const* reservedTokens[] = {
   "=",

@@ -1,4 +1,8 @@
-#include "lang.h"
+#include <iostream>
+#include <fstream>
+#include "common.h"
+#include "BNF_Reader/Lexer.h"
+#include "BNF_Reader/Reader.h"
 
 int main(int argc, char** argv) {
   using namespace LangMaker;

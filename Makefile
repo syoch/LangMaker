@@ -1,27 +1,49 @@
 TARGET	= lm
 
-HEADER	= lang.h
-SOURCES	= $(wildcard *.cc)
-OBJECTS	= $(SOURCES:.cc=.o)
+BUILD		= build
+INCLUDE	= include
+SOURCE	= src
 
-COMMON		= -O2
-CXXFLAGS	= $(COMMON) -std=c++20 
+CXXFLAGS	= $(INCLUDES) -g -O1 -std=c++20
 LDFLAGS		= -Wl,--gc-sections
 
-all: $(TARGET)
+%.o: %.cc
+	@echo $(notdir $<)
+	@$(CC) -MP -MMD -MF $*.d $(CXXFLAGS) -c -o $@ $<
+
+ifneq ($(notdir $(CURDIR)),$(BUILD))
+
+export OUTPUT		= $(CURDIR)/$(TARGET)
+export INCLUDES	= $(foreach dir,$(INCLUDE),-I$(dir))
+export VPATH		= $(SOURCE)
+
+CXXFILES	= $(foreach dir,$(SOURCE),$(notdir $(wildcard $(dir)/*.cc)))
+
+export OBJECTS	= \
+	$(CXXFILES:.cc=.o)
+
+all: $(BUILD)
+
+$(BUILD):
+	@[ -d $@ ] || mkdir -p $@
+	@$(MAKE) --no-print-directory -C $@ -f $(CURDIR)/Makefile
 
 clean:
-	@rm -rf $(TARGET) *.o
+	@rm -rf build
+	@rm -f $(TARGET)
 
 re: clean all
 
-debug:
-	@$(MAKE) --no-print-directory COMMON="-g -O0" -f $(CURDIR)/Makefile
+.PHONY: $(BUILD)
 
-%.o: %.cc
-	@echo $<
-	@clang++ $(CXXFLAGS) -c -o $@ $<
+else
 
-$(TARGET): $(OBJECTS)
+DEPENDS	= $(OBJECTS:.o=.d)
+
+$(OUTPUT): $(OBJECTS)
 	@echo linking...
-	@clang++ $(LDFLAGS) -o $@ $^
+	@$(CC) $(LDFLAGS) -o $@ $^
+
+-include $(DEPENDS)
+
+endif

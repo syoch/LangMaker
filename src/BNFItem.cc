@@ -1,4 +1,6 @@
-#include "lang.h"
+#include "common.h"
+#include "BNF_Reader/Item.h"
+#include "Utils.h"
 
 namespace LangMaker::BNF_Reader {
   std::string BNFItem::to_string(BNFItem const& item) {

@@ -34,11 +34,6 @@ void Reader::expect(char const* str) {
 }
 
 BNFItem Reader::factor() {
-  debug(
-    alert;
-    *cur;
-  )
-
   if( cur == source.end() ) {
     std::cout << "syntax err" << std::endl;
     exit(1);
@@ -47,19 +42,6 @@ BNFItem Reader::factor() {
   if( eat("(") ) {
     auto&& item = this->top();
     expect(")");
-
-    // Repeat
-    if( eat("*") ) {
-      item.item.reset(new BNFItem(std::move(item)));
-      item.kind = BNF_REPEAT;
-    }
-
-    // Optional
-    else if( eat("?") ) {
-      item.item.reset(new BNFItem(std::move(item)));
-      item.kind = BNF_OPTION;
-    }
-
     return item;
   }
 
@@ -88,15 +70,28 @@ BNFItem Reader::factor() {
   return item;
 }
 
+BNFItem Reader::repeat() {
+  auto&& x = factor();
+
+  if( eat("*") ) {
+    x.item.reset(x.clone());
+    x.kind = BNF_REPEAT;
+  }
+  else if( eat("?") ) {
+    x.item.reset(x.clone());
+    x.kind = BNF_OPTION;
+  }
+
+  return x;
+}
+
 BNFItem Reader::list() {
   BNFItem item{ .kind = BNF_LIST };
 
   try {
     while( check() ) {
-      item.list.emplace_back(factor());
+      item.list.emplace_back(repeat());
     }
-    
-    alert;
   }
   catch( ... ) { }
 
@@ -119,15 +114,7 @@ BNFItem Reader::separator() {
 }
 
 BNFItem Reader::define() {
-  debug(
-    alert;
-    *cur;
-  )
-
-  //BNFItem item { .kind = ItemKind::BNF_DEFINE };
-
   if( getStrT(*cur) != StringType::Alphabets ) {
-    alert;
     return this->separator();
   }
 
@@ -146,9 +133,6 @@ BNFItem Reader::define() {
 }
 
 BNFItem Reader::top() {
-  alert;
-  *cur;
-
   return this->define();
 }
 

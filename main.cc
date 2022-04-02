@@ -15,8 +15,7 @@ int main(int argc, char** argv) {
   BNF_Reader::Lexer lexer(src);
   lexer.lex(s);
 
-  alert;
-  for(auto&&i:s) std::cout<<i<<std::endl;
+  // for(auto&&i:s) std::cout<<i<<std::endl;
 
   BNF_Reader::Reader reader(s);
 

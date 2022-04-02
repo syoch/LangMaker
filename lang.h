@@ -93,6 +93,9 @@ struct BNFItem {
   static std::string to_string(BNFItem const& item);
   static std::string to_data_string(BNFItem const& item);
 
+  BNFItem* clone() {
+    return new BNFItem(*this);
+  }
 };
 
 class Lexer {
@@ -159,11 +162,10 @@ public:
     : source(source)
   {
     this->cur = this->source.begin();
-
-    alert;
   }
 
   BNFItem factor();
+  BNFItem repeat();
   BNFItem list();
   BNFItem separator();
   BNFItem define();

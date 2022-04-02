@@ -6,3 +6,6 @@ lm
 
 memo.*
 test.*
+
+# CMake generated files
+build

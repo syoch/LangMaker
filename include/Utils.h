@@ -4,6 +4,7 @@
 #include <ostream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 template <class T>
 concept haveMethodToString = requires (T const& x) {

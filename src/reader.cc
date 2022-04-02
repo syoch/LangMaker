@@ -1,6 +1,9 @@
+#include <iostream>
 #include <stdexcept>
-#include "lang.h"
-
+#include "common.h"
+#include "BNF_Reader/Item.h"
+#include "BNF_Reader/Reader.h"
+#include "Utils.h"
 struct FailedToRead : std::exception {
   char const* what() const noexcept override {
     return "failed to read";
@@ -122,7 +125,7 @@ BNFItem Reader::define() {
     BNFItem item = { .kind = ItemKind::BNF_DEFINE };
 
     item.name = *cur;
-    
+
     cur += 2;
     item.item.reset(new BNFItem(this->separator()));
 
